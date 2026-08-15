@@ -5,13 +5,18 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args
 });
 
-// Disable reloadOnChange for configuration files to prevent inotify limit crashes
+// Disable reloadOnChange to avoid Linux inotify file watcher limits on Render
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
-builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddEnvironmentVariables();
 
+// 1. Register CORS services
+builder.Services.AddCors();
+
 var app = builder.Build();
+
+// 2. Enable CORS globally for all domains
+app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.MapGet("/app/shojiburfahad_gmail_com", (string? x, string? y) =>
 {
